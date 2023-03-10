@@ -1,4 +1,3 @@
-import axios from 'axios'
 import { useEffect, useState } from 'react'
 import personsService from './services/persons'
 
@@ -35,6 +34,12 @@ const App = () => {
     setNewName('')
     setNewNumber('')
   }
+
+  const deletePerson = (id) => {
+    personsService
+      .removePerson(id)
+      .then(setPersons(persons.filter(person => person.id !== id)))
+  }
   
   const handleNameChange = (event) => {
     setNewName(event.target.value)
@@ -68,24 +73,30 @@ const App = () => {
         </div>
       </form>
       <h2>Numbers</h2>
-      <Numbers filter={filter} persons={persons} />
+      <Numbers filter={filter} persons={persons} forButton={deletePerson}/>
     </div>
   )
 }
 
-const Numbers = ({filter, persons}) => {
+const Numbers = ({filter, persons, forButton}) => {
   if (filter === "") {
     return (
       <ul>
-        {persons.map(person => <li key={person.name}>{person.name} {person.number}</li>)}
+        {persons.map(person => <li key={person.id}>{person.name} {person.number} <DeleteButton id={person.id} deletion={forButton}/></li>)}
       </ul>
     )
   }
   const filteredPersons = persons.filter(person => person.name.toLowerCase().startsWith(filter.toLowerCase()))
   return (
     <ul>
-      {filteredPersons.map(person => <li key={person.name}>{person.name} {person.number}</li>)}
+      {filteredPersons.map(person => <li key={person.id}>{person.name} {person.number} <DeleteButton id={person.id} deletion={forButton}/></li>)}
     </ul>
+  )
+}
+
+const DeleteButton = ({id, deletion}) => {
+  return (
+    <button onClick={() => deletion(id)}>delete {id}</button>
   )
 }
 
